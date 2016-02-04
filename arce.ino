@@ -13,61 +13,46 @@ int buzzerState;                            // current reading from the input pi
 // debouncing variables to check button twice before doing anything
 long lastDebounceTime = 0;                  // the last time the output pin was toggled
 long debounceDelay = 120;                   // the debounce time; increase if multiple texts are sent
-int lastBuzzerState = HIGH;                 // store the previous reading from the buzzerPin
+bool buttonWasPressed = false;
 
 void setup() {
     // read buzzerPin
     pinMode(buzzerPin, INPUT_PULLUP);
+    attachInterrupt(D3, interrupt, FALLING);
     
     // turn on serial communication
     Serial.begin(9600);
     delay(200);
 }
 
-void loop() {
-    // put the state of the switch into a local variable, 'reading':
-    int reading = digitalRead(buzzerPin);
-    
-    // check to see if the buzzer has went off
-    // (i.e. the input went from LOW to HIGH),  and you've waited
-    // long enough to ignore any noise:
-    if (reading != lastBuzzerState) {
-        // reset the debouncing timer
-        lastDebounceTime = millis();
-    }
-    
-    // whatever the reading is at, it's been there for longer
-    // than the debounce delay, so take it as the actual current state:
+void interrupt() {
     if ((millis() - lastDebounceTime) > debounceDelay) {
-        
-        // change saved buzzer state to buzzerState variable
-        if (reading != buzzerState) {
-            buzzerState = reading;
-            
-            // if the buzzerState is LOW, send a text via Twilio    
-            if (buzzerState == LOW) {
-                Serial.print(buzzerState);
-                // use a webhook to send json to Twilio
-                Particle.publish("twilio", "Heads up: Someone just buzzed your intercom!", 60, PRIVATE);
-            
-                // if a connection to the HUE bridge exists then do stuff with the lights
-                String command = "{\"on\": true,\"hue\":50000,\"sat\":254,\"bri\":180,\"alert\":\"none\",\"transitiontime\":40}";
-                setHue(lightNum, command);
-                delay(12000);
-                // turning HUE off after alert produces nicer gradual off than by relying on 'else' to turn it off
-                command = "{\"on\": false}";
-                setHue(lightNum, command);
-                delay(50);
-            }
-        }
-        else {
-            // turn HUE off if for some reason it's on, else it will stay on until someone pushes the buzzer
-            String command = "{\"on\": false}";
-            setHue(lightNum, command);
-        }
+        buttonWasPressed = true;
     }
-    // Revert buzzer state 
-    lastBuzzerState = reading;
+}
+
+void loop() {
+    // if the button was pressed, send a text via Twilio + do stuff with the lights
+    if (buttonWasPressed == true) {
+
+        String command = "{\"on\": true,\"hue\":50000,\"sat\":254,\"bri\":180,\"alert\":\"none\",\"transitiontime\":40}";
+        setHue(lightNum, command);
+        delay(10000);
+        // turning HUE off after alert produces nicer gradual off than by relying on 'else' to turn it off
+        command = "{\"on\": false}";
+        setHue(lightNum, command);
+        Serial.println("command sent to HUE ");     // command executed
+        
+        // use a webhook to send json to Twilio
+        Particle.publish("twilio", "Heads up: Someone just buzzed your intercom!", 60, PRIVATE);
+        delay(20);
+        buttonWasPressed = false;
+    }
+    else {
+        // turn HUE off if for some reason it's on, else it will stay on until someone pushes the buzzer
+        String command = "{\"on\": false}";
+        setHue(lightNum, command);
+    }
 }
 
 boolean setHue(int lightNum, String command) {      // moving this out of the loop
