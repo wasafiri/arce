@@ -48,7 +48,7 @@ void loop() {
             if (buzzerState == LOW) {
                 Serial.print(buzzerState);
                 // use a webhook to send json to Twilio
-                // Particle.publish("twilio", "Heads up: Someone just buzzed your intercom!", 60, PRIVATE);
+                Particle.publish("twilio", "Heads up: Someone just buzzed your intercom!", 60, PRIVATE);
             
                 // if a connection to the HUE bridge exists then do stuff with the lights
                 String command = "{\"on\": true,\"hue\":50000,\"sat\":254,\"bri\":180,\"alert\":\"none\",\"transitiontime\":40}";
