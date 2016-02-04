@@ -22,7 +22,6 @@ void setup() {
     // turn on serial communication
     Serial.begin(9600);
     delay(200);
-    Serial.println("setup done");
 }
 
 void loop() {
@@ -49,7 +48,7 @@ void loop() {
             if (buzzerState == LOW) {
                 Serial.print(buzzerState);
                 // use a webhook to send json to Twilio
-                Particle.publish("twilio", "Heads up: Someone just buzzed your intercom!", 60, PRIVATE);
+                // Particle.publish("twilio", "Heads up: Someone just buzzed your intercom!", 60, PRIVATE);
             
                 // if a connection to the HUE bridge exists then do stuff with the lights
                 String command = "{\"on\": true,\"hue\":50000,\"sat\":254,\"bri\":180,\"alert\":\"none\",\"transitiontime\":40}";
@@ -73,7 +72,6 @@ void loop() {
 
 boolean setHue(int lightNum, String command) {      // moving this out of the loop
     if (client.connect(hueHubIP, hueHubPort)) {
-        Serial.println("hue bridge connected");
         unsigned int len = command.length();        // get length
         client.println("PUT /api/newdeveloper/lights/3/state HTTP/1.1");
         client.println("Connection: keep-alive");
@@ -84,7 +82,6 @@ boolean setHue(int lightNum, String command) {      // moving this out of the lo
         client.println(len);                        // brightness string + val length
         client.println();                           // blank line before body
         client.print(command);
-        Serial.println("command sent to HUE ");     // command executed
         delay(100);                                 // slight delay IMPORTANT
         client.stop();
     }
