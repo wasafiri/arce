@@ -1,0 +1,18 @@
+{
+    "eventName": "plivo_sms",
+    "url": "https://api.plivo.com/v1/Account/YOUR_AUTH_ID_HERE/Message/",
+    "requestType": "POST",
+    "headers": {
+        "Content-Type": "application/json"
+        },
+    "auth": {
+        "username": "YOUR_AUTH_ID_HERE",
+        "password": "YOUR_AUTH_TOKEN_HERE"
+    },
+    "json": {
+        "src": "YOUR_PLIVO_NUMBER_HERE",
+        "dst": "NUMBER_YOU_WANT_TO_SEND_TO",
+        "text": "{{SPARK_EVENT_VALUE}}"
+    },
+    "mydevices": true
+}
