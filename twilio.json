@@ -1,0 +1,15 @@
+{
+    "eventName": "twilio_sms",
+    "url": "https://api.twilio.com/2010-04-01/Accounts/YOUR_AUTH_ID_HERE/Messages",
+    "requestType": "POST",
+    "auth": {
+        "username": "YOUR_AUTH_ID_HERE",
+        "password": "YOUR_AUTH_TOKEN_HERE"
+    },
+    "form": {
+        "From": "YOUR_TWILIO_NUMBER_HERE",
+        "To": "NUMBER_YOU_WANT_TO_SEND_TO",
+        "Body": "{{SPARK_EVENT_VALUE}}"
+    },
+    "mydevices": true
+}
